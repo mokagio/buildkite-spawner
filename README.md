@@ -8,23 +8,23 @@ Run `bundle install`, then:
 
 ```
 BK_API_TOKEN=... bundle exec ruby spawner.rb \
-  <pipeline> \
-  <branch> \
-  <commit_full_sha> \
-  <number_of_builds_to_spawn> \
-  <organization> \
-  <author_name> \
-  <author_email>
+  --number number_of_builds_to_spawn \
+  --commit commit_full_sha \
+  --branch branch_where_commit_is \
+  --pipeline your_pipeline_name \
+  --organization your_org_on_buildkite \
+  --author name_to_show_on_buildkite \
+  --email email_to_show_on_buildkite
 ```
 
 ### 2. Collect the results
 
 ```
 BK_API_TOKEN=... bundle exec ruby results_collector.rb \
-  <pipeline> \
-  <commit> \
-  <total_builds> \
-  <organization>
+  --commit commit_full_sha \
+  --number how_many_builds_where_spawend \ # this will soon be computed
+  --pipeline your-pipeline \
+  --organization your_org_on_buildkite
 ```
 
 All the options other than the Buildkite token, `branch` and `commit` can be read in a local `spawner.yml` file.
