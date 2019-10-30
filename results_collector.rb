@@ -1,17 +1,27 @@
 require 'json'
 require 'rest-client'
 require 'optparse'
+require 'psych'
+
+local_config = {}
+local_config_path = 'spawner.yml'
+if File.exists? local_config_path
+  local_config = Psych.safe_load(File.read(local_config_path), symbolize_names: true)
+end
 
 buildkite_api_token = ENV['BK_API_TOKEN']
 raise 'Missing Buildkite API token as BK_API_TOKEN' if buildkite_api_token.nil?
 
-config = {}
+input_config = {}
 OptionParser.new do |opts|
   opts.on('-c', '--commit SHA', String, 'The full SHA commit to spawn')
   opts.on('-p', '--pipeline PIPELINE', String, 'The name of the pipeline on which to spawn builds')
   opts.on('-n', '--number NUMBER', Integer, 'How many builds have been run')
   opts.on('-o', '--organization ORG', String, 'How many builds to run')
-end.parse!(into: config)
+end.parse!(into: input_config)
+
+# input configs override local ones
+config = local_config.merge(input_config)
 
 raise 'Missing commit full SHA' if config[:commit].nil?
 raise 'Missing pipeline' if config[:pipeline].nil?
