@@ -1,6 +1,7 @@
 require 'json'
 require './lib/config_reader.rb'
 require 'optparse'
+require 'rest-client'
 
 local_config = read_local_config
 
@@ -38,22 +39,30 @@ base_url = "https://api.buildkite.com/v2/organizations/#{config[:organization]}"
 
 message = 'Build to verify stability'
 
+payload = {
+  branch: config[:branch],
+  commit: config[:commit],
+  author: {
+    name: config[:author],
+    email: config[:email]
+  },
+  env: {},
+  meta_data: {}
+}
+
+url = "#{base_url}/pipelines/#{config[:pipeline]}/builds"
 (1..config[:number]).each do |i|
-  system %Q{
-curl \
-  -H 'Authorization: Bearer #{buildkite_api_token}' \
-  -X POST "#{base_url}/pipelines/#{config[:pipeline]}/builds" \
-  -d '{
-    "branch": "#{config[:branch]}",
-    "commit": "#{config[:commit]}",
-    "message": "#{message} (#{i} of #{config[:number]})",
-    "author": {
-      "name": "#{config[:author]}",
-      "email": "#{config[:email]}"
-    },
-    "env": { },
-    "meta_data": { }
-  }'
-  }
+  suffix = "#{i} of #{config[:number]}"
+  puts "Spawning build #{suffix}..."
+
+  payload[:message] = "#{message} (#{suffix})"
+
+  begin
+    RestClient.post(url, payload.to_json, headers = { 'Authorization' => "Bearer #{buildkite_api_token}" })
+  rescue RestClient::ExceptionWithResponse => e
+    puts "Something went wrong"
+    puts e.response
+  end
+
   sleep(0.5) # just so we don't hit rate limiting
 end
