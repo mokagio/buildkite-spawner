@@ -22,8 +22,6 @@ end.parse!(into: input_config)
 # input configs override local ones
 config = local_config.merge(input_config)
 
-puts config
-
 raise 'Missing commit' if config[:commit].nil?
 raise 'Missing branch' if config[:branch].nil?
 raise 'Missing pipeline' if config[:pipeline].nil?
