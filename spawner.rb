@@ -10,7 +10,8 @@ raise 'Missing branch' if branch.nil?
 commit_full_sha = ARGV[2]
 raise 'Missing commit full SHA' if commit_full_sha.nil?
 
-total = ARGV[3].to_i || 100
+total = ARGV[3].to_i
+raise 'Missing number of builds to spawn' if total.nil?
 
 organization = ARGV[4]
 raise 'Missing organization' if organization.nil?
