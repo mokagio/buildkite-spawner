@@ -63,6 +63,4 @@ url = "#{base_url}/pipelines/#{config[:pipeline]}/builds"
     puts "Something went wrong"
     puts e.response
   end
-
-  sleep(0.5) # just so we don't hit rate limiting
 end
