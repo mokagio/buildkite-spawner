@@ -1,6 +1,10 @@
+# Buildkite builds spawner
+
+Dumb script to spawn builds on [Buildkite](https://buildkite.com).
+
 Run `bundle install`, then:
 
-1. Spawn builds with:
+### 1. Spawn builds with:
 
 ```
 BK_API_TOKEN=... bundle exec ruby spawner.rb \
@@ -13,7 +17,7 @@ BK_API_TOKEN=... bundle exec ruby spawner.rb \
   <author_email>
 ```
 
-2. Collect the results
+### 2. Collect the results
 
 ```
 BK_API_TOKEN=... bundle exec ruby results_collector.rb \
@@ -22,3 +26,5 @@ BK_API_TOKEN=... bundle exec ruby results_collector.rb \
   <total_builds> \
   <organization>
 ```
+
+All the options other than the Buildkite token, `branch` and `commit` can be read in a local `spawner.yml` file.

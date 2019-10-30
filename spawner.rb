@@ -1,43 +1,55 @@
+require 'json'
+require './lib/config_reader.rb'
+require 'optparse'
+
+local_config = read_local_config
+
 buildkite_api_token = ENV['BK_API_TOKEN']
 raise 'Missing Buildkite API token as BK_API_TOKEN' if buildkite_api_token.nil?
 
-pipeline = ARGV[0]
-raise 'Missing pipeline' if pipeline.nil?
+input_config = {}
+OptionParser.new do |opts|
+  add_commit_option(opts)
+  opts.on('-b', '--branch BRANCH', String, 'The branch where the commit belongs')
+  add_number_option(opts)
+  add_organization_option(opts)
+  add_pipeline_option(opts)
+  opts.on('-a', '--author', String, 'The name of the build author that should appear on Buildkite')
+  opts.on('-e', '--email', String, 'The email of the build author that should appear on Buildkite')
+end.parse!(into: input_config)
 
-branch = ARGV[1]
-raise 'Missing branch' if branch.nil?
+# input configs override local ones
+config = local_config.merge(input_config)
 
-commit_full_sha = ARGV[2]
-raise 'Missing commit full SHA' if commit_full_sha.nil?
+puts config
 
-total = ARGV[3].to_i
-raise 'Missing number of builds to spawn' if total.nil?
+raise 'Missing commit' if config[:commit].nil?
+raise 'Missing branch' if config[:branch].nil?
+raise 'Missing pipeline' if config[:pipeline].nil?
+raise 'Missing number of builds to spawn' if config[:number].nil?
+raise 'Missing organization' if config[:organization].nil?
+raise 'Missing author name' if config[:author].nil?
+raise 'Missing author email' if config[:email].nil?
 
-organization = ARGV[4]
-raise 'Missing organization' if organization.nil?
+buildkite_api_token = ENV['BK_API_TOKEN']
+raise 'Missing Buildkite API token as BK_API_TOKEN' if buildkite_api_token.nil?
 
-author_name = ARGV[5]
-raise 'Missing author name' if author_name.nil?
-
-author_email = ARGV[6]
-raise 'Missing author email' if author_email.nil?
-
-base_url = "https://api.buildkite.com/v2/organizations/#{organization}"
+base_url = "https://api.buildkite.com/v2/organizations/#{config[:organization]}"
 
 message = 'Build to verify stability'
 
-(1..total).each do |i|
+(1..config[:number]).each do |i|
   system %Q{
 curl \
   -H 'Authorization: Bearer #{buildkite_api_token}' \
-  -X POST "#{base_url}/pipelines/#{pipeline}/builds" \
+  -X POST "#{base_url}/pipelines/#{config[:pipeline]}/builds" \
   -d '{
-    "branch": "#{branch}",
-    "commit": "#{commit_full_sha}",
-    "message": "#{message} (#{i} of #{total})",
+    "branch": "#{config[:branch]}",
+    "commit": "#{config[:commit]}",
+    "message": "#{message} (#{i} of #{config[:number]})",
     "author": {
-      "name": "#{author_name}",
-      "email": "#{author_email}"
+      "name": "#{config[:author]}",
+      "email": "#{config[:email]}"
     },
     "env": { },
     "meta_data": { }
