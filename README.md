@@ -28,3 +28,10 @@ BK_API_TOKEN=... bundle exec ruby results_collector.rb \
 ```
 
 All the options other than the Buildkite token, `branch` and `commit` can be read in a local `spawner.yml` file.
+
+```yml
+organization: 'acme_inc'
+pipeline: 'acme_app'
+author: "Gios 🤖"
+email: 'gio@acme.com'
+```
