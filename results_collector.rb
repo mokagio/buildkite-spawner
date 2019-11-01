@@ -1,3 +1,4 @@
+require 'dotenv'
 require 'json'
 require './lib/config_reader.rb'
 require 'optparse'
@@ -5,6 +6,7 @@ require 'rest-client'
 
 local_config = read_local_config
 
+Dotenv.load
 buildkite_api_token = ENV['BK_API_TOKEN']
 raise 'Missing Buildkite API token as BK_API_TOKEN' if buildkite_api_token.nil?
 

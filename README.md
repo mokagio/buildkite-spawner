@@ -35,3 +35,11 @@ pipeline: 'acme_app'
 author: "Gios 🤖"
 email: 'gio@acme.com'
 ```
+
+You can define your `BK_API_TOKEN` in a `.env` file.
+
+```
+BK_API_TOKEN=<your_token>
+```
+
+**Do not check-in `.env` in your source control**, unless you want to expose the token to anyone with access to the repository.
